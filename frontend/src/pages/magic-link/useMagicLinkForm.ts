@@ -139,7 +139,7 @@ export function useMagicLinkForm(context: "login" | "register") {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
   }
 
-  const submitMagicLink = async (captchaToken: string) => {
+  const submitMagicLink = async (_captchaToken: string) => {
   try {
     if (context === "register") {
       await sendMagicLinkInscription(values)

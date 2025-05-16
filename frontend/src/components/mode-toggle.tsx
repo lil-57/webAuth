@@ -9,6 +9,7 @@ export function ModeToggle() {
   const { setTheme } = useTheme()
 
   return (
+ 
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
@@ -22,5 +23,6 @@ export function ModeToggle() {
         <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+ 
   )
 }

@@ -31,7 +31,6 @@ export default function ProfileForm() {
     validationStatus,
     handleChange,
     handleEditToggle,
-    handleSubmit,
     confirmEmailChange,
     cancelEmailChange,
     submitProfileValidation,

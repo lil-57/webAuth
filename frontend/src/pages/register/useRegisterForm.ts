@@ -81,7 +81,7 @@ export function useRegisterForm() {
 
       return errors
     },
-    onSubmit: async (vals) => {
+    onSubmit: async (_vals) => {
       if (!currentCaptchaToken) {
         setError("Veuillez valider le captcha")
       }
@@ -183,7 +183,6 @@ export function useRegisterForm() {
   const [captchaResetKey, setCaptchaResetKey] = useState(0)
 
   const {
-    recaptchaRef,
     setCaptchaToken,
     setIsCaptchaValid,
   } = useCaptcha("6LepeDsrAAAAADh7dus3QTC8qmiPfFkZ3oTFPz_B")
