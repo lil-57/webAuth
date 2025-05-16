@@ -30,7 +30,7 @@ export default function RegisterPage() {
             </TabsContent>
 
             <TabsContent value="magic-link">
-              {magicLinkSent ? <MagicLinkNotice /> : <MagicLinkForm context="register" />}
+              {magicLinkSent ? <MagicLinkNotice context="register" /> : <MagicLinkForm context="register" />}
             </TabsContent>
           </Tabs>
         </CardContent>

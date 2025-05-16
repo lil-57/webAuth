@@ -34,7 +34,7 @@ export function useLoginForm() {
       password: "",
     },
     validate: () => ({}),
-    onSubmit: async (vals) => {
+    onSubmit: async (_vals) => {
       if (!currentCaptchaToken) {
         throw new Error("Captcha token is missing")
       }
