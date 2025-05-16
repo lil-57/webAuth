@@ -1,0 +1,8 @@
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "pnpm build"
+
+# (optionnel)
+#[functions]
+#  directory = "netlify/functions"
