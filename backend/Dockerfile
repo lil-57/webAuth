@@ -30,4 +30,4 @@ COPY --from=builder /app/pnpm-lock.yaml .
 COPY --from=builder /app/node_modules ./node_modules
 
 # Démarrer l'application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
