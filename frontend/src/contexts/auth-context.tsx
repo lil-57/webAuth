@@ -2,8 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { api } from "@/utils/api"
-
 
 interface User {
   id: string
@@ -58,8 +56,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await api.get("/users/me")
-        setUser(response.data)
+        const response = await fetch("http://localhost:3000/users/me", {
+          credentials: "include",
+        })
+
+        if (!response.ok) {
+          throw new Error("Non authentifié")
+        }
+
+        const userData = await response.json()
+        setUser(userData)
         setIsAuthenticated(true)
       } catch (error) {
         console.log("User not authenticated")
@@ -75,20 +81,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string, captchaToken: string) => {
     try {
-      await api.post("/auth/login", { email, password, captchaToken })
-      const response = await api.get("/users/me")
-      setUser(response.data)
+      const loginResponse = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password, captchaToken }),
+      })
+
+      if (!loginResponse.ok) {
+        const errorData = await loginResponse.json()
+        throw new Error(errorData.message || "Erreur de connexion")
+      }
+
+      const userResponse = await fetch("http://localhost:3000/users/me", {
+        credentials: "include",
+      })
+
+      if (!userResponse.ok) {
+        throw new Error("Impossible de récupérer les informations utilisateur")
+      }
+
+      const userData = await userResponse.json()
+      setUser(userData)
       setIsAuthenticated(true)
+
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté",
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error)
       toast({
         variant: "destructive",
         title: "Erreur de connexion",
-        description: "Email ou mot de passe incorrect",
+        description: error.message || "Email ou mot de passe incorrect",
       })
       throw error
     }
@@ -96,20 +122,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (userData: RegisterData, captchaToken: string) => {
     try {
-      await api.post("/auth/register", { ...userData, captchaToken })
-      const response = await api.get("/users/me")
-      setUser(response.data)
+      const registerResponse = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ...userData, captchaToken }),
+      })
+
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json()
+        throw new Error(errorData.message || "Erreur d'inscription")
+      }
+
+      const userResponse = await fetch("http://localhost:3000/users/me", {
+        credentials: "include",
+      })
+
+      if (!userResponse.ok) {
+        throw new Error("Impossible de récupérer les informations utilisateur")
+      }
+
+      const userInfo = await userResponse.json()
+      setUser(userInfo)
       setIsAuthenticated(true)
+
       toast({
         title: "Inscription réussie",
         description: "Votre compte a été créé avec succès",
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Register error:", error)
       toast({
         variant: "destructive",
         title: "Erreur d'inscription",
-        description: "Impossible de créer votre compte",
+        description: error.message || "Impossible de créer votre compte",
       })
       throw error
     }
@@ -117,9 +163,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      await api.post("/auth/logout")
+      await fetch("http://localhost:3000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+
       setUser(null)
       setIsAuthenticated(false)
+
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès",
@@ -134,54 +185,87 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-const updateProfile = async (data: UpdateProfileData, captchaToken: string) => {
-  try {
-    const response = await api.patch("/users/me", { ...data, captchaToken })
-    setUser(response.data)
-    toast({ title: "Profil mis à jour", description: "Votre profil a été mis à jour avec succès" })
-  } catch (error) {
-    console.error("Update profile error:", error)
-    toast({
-      variant: "destructive",
-      title: "Erreur de mise à jour",
-      description: "Impossible de mettre à jour votre profil",
-    })
-    throw error
-  }
-}
-
-
-  const changePassword = async (oldPassword: string, newPassword: string) => {
+  const updateProfile = async (data: UpdateProfileData, captchaToken: string) => {
     try {
-      await api.patch("/users/me/password", { oldPassword, newPassword })
-      toast({
-        title: "Mot de passe modifié",
-        description: "Votre mot de passe a été modifié avec succès",
+      const response = await fetch("http://localhost:3000/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ...data, captchaToken }),
       })
-    } catch (error) {
-      console.error("Change password error:", error)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Erreur de mise à jour du profil")
+      }
+
+      const updatedUser = await response.json()
+      setUser(updatedUser)
+
+      toast({
+        title: "Profil mis à jour",
+        description: "Votre profil a été mis à jour avec succès",
+      })
+
+      return updatedUser
+    } catch (error: any) {
+      console.error("Update profile error:", error)
       toast({
         variant: "destructive",
-        title: "Erreur de modification",
-        description: "Impossible de modifier votre mot de passe",
+        title: "Erreur de mise à jour",
+        description: error.message || "Impossible de mettre à jour votre profil",
       })
       throw error
     }
   }
 
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    try {
+      const response = await fetch("http://localhost:3000/users/me/password", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ oldPassword, newPassword }),
+      })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Erreur de modification du mot de passe")
+      }
 
-const refreshUser = async (): Promise<User | null> => {
-  try {
-    const response = await api.get("/users/me")
-    setUser(response.data)
-    return response.data
-  } catch (error) {
-    console.error("Erreur lors du rafraîchissement de l'utilisateur :", error)
-    return null
+      toast({
+        title: "Mot de passe modifié",
+        description: "Votre mot de passe a été modifié avec succès",
+      })
+    } catch (error: any) {
+      console.error("Change password error:", error)
+      toast({
+        variant: "destructive",
+        title: "Erreur de modification",
+        description: error.message || "Impossible de modifier votre mot de passe",
+      })
+      throw error
+    }
   }
-}
 
+  const refreshUser = async (): Promise<User | null> => {
+    try {
+      const response = await fetch("http://localhost:3000/users/me", {
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        throw new Error("Impossible de récupérer les informations utilisateur")
+      }
+
+      const userData = await response.json()
+      setUser(userData)
+      return userData
+    } catch (error) {
+      console.error("Erreur lors du rafraîchissement de l'utilisateur :", error)
+      return null
+    }
+  }
 
   const value: AuthContextType = {
     user,
