@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Check, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { getPasswordStrength } from "./getPasswordStrength"
-import type { PropsPasswordFields  } from "./PasswordInterface"
+import type { PropsPasswordFields } from "./PasswordInterface"
 
 export default function PasswordFields({ values, onChange }: PropsPasswordFields) {
   const [showNewPassword, setShowNewPassword] = useState(false)
@@ -87,8 +87,7 @@ export default function PasswordFields({ values, onChange }: PropsPasswordFields
         {values.newPassword && (
           <div className="h-2 mt-2 bg-gray-200 rounded">
             <div
-              className={`h-2 rounded transition-all duration-300 ${
-                strength <= 1
+              className={`h-2 rounded transition-all duration-300 ${strength <= 1
                   ? "w-1/5 bg-red-500"
                   : strength === 2
                     ? "w-2/5 bg-orange-500"
@@ -97,7 +96,7 @@ export default function PasswordFields({ values, onChange }: PropsPasswordFields
                       : strength === 4
                         ? "w-4/5 bg-green-500"
                         : "w-full bg-emerald-600"
-              }`}
+                }`}
             />
           </div>
         )}

@@ -8,7 +8,7 @@ import { Mail } from "lucide-react"
 import MagicLinkNotice from "./MagicLinkNotice"
 import type { PropsMagicLink } from "./MagicLinkInterface"
 import { AlertCircle } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
 import { useCaptcha } from "@/hooks/useCaptcha"
 
@@ -16,7 +16,7 @@ export default function MagicLinkForm({ context }: PropsMagicLink) {
   const {
     values,
     handleChange,
-    handleSubmit,
+
     isSubmitting,
     showEmailError,
     emailValid,

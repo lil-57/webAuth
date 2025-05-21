@@ -6,6 +6,7 @@ import { useForm } from "@/hooks/use-form"
 import { emailRegex } from "@/utils/regexEmail"
 import { nameRegex } from "@/utils/regexNom"
 import { useCaptcha } from "@/hooks/useCaptcha"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 let currentCaptchaToken: string | null = null
 
@@ -116,7 +117,7 @@ export default function useProfileForm() {
 
       if (emailRegex.test(values.email)) {
         try {
-          const res = await fetch(`http://localhost:3000/users/check-email?email=${encodeURIComponent(values.email)}`)
+          const res = await fetchWithBaseUrl(`/users/check-email?email=${encodeURIComponent(values.email)}`)
           if (res.ok) {
             const { exists } = await res.json()
             setEmailExists(exists && values.email !== originalEmail)
@@ -157,9 +158,8 @@ export default function useProfileForm() {
 
   const confirmEmailChange = async () => {
     try {
-      await fetch("http://localhost:3000/emails/confirm-email-change", {
+      await fetchWithBaseUrl("/emails/confirm-email-change", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ oldEmail: originalEmail, newEmail: values.email }),
       })
 

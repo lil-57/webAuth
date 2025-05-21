@@ -5,6 +5,7 @@ import { useForm } from "@/hooks/use-form"
 import { useSearchParams } from "react-router-dom"
 import type { PasswordFormValues } from "./PasswordInterface"
 import { useNavigate } from "react-router-dom"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 export function usePasswordForm() {
   const [searchParams] = useSearchParams()
@@ -51,10 +52,8 @@ export function usePasswordForm() {
       try {
         const endpoint = isCreateMode ? "create-password" : "reset-password"
 
-        const res = await fetch(`http://localhost:3000/auth/${endpoint}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+        const res = await fetchWithBaseUrl(`/auth/${endpoint}`, {
+          method: "PATCH",  
           body: JSON.stringify({ newPassword: vals.newPassword }),
         })
 

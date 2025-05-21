@@ -9,6 +9,7 @@ import { emailRegex } from "@/utils/regexEmail"
 import type { RegisterFormValues } from "./RegisterInterface"
 import { useCaptcha } from "@/hooks/useCaptcha"
 import Cookies from "js-cookie"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 let currentCaptchaToken: string | null = null
 
@@ -145,7 +146,7 @@ export function useRegisterForm() {
       setShowErrors((s) => ({ ...s, email: true }))
       if (emailRegex.test(values.email)) {
         try {
-          const res = await fetch(`http://localhost:3000/users/check-email?email=${encodeURIComponent(values.email)}`)
+          const res = await fetchWithBaseUrl(`/users/check-email?email=${encodeURIComponent(values.email)}`)
           if (res.ok) {
             const { exists } = await res.json()
             setEmailExists(exists)
@@ -183,7 +184,6 @@ export function useRegisterForm() {
   const [captchaResetKey, setCaptchaResetKey] = useState(0)
 
   const {
-    recaptchaRef,
     setCaptchaToken,
     setIsCaptchaValid,
   } = useCaptcha("6LepeDsrAAAAADh7dus3QTC8qmiPfFkZ3oTFPz_B")

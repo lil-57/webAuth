@@ -1,9 +1,9 @@
 import type { MagicLinkFormValues } from "@/pages/magic-link/MagicLinkInterface"
+import { fetchWithBaseUrl } from "./fetchWithBaseUrl"
 
 export async function sendMagicLinkInscription(data: MagicLinkFormValues) {
-  const res = await fetch("http://localhost:3000/emails/send-magic-link-inscription", {
+  const res = await fetchWithBaseUrl("/emails/send-magic-link-inscription", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
 
@@ -15,9 +15,8 @@ export async function sendMagicLinkInscription(data: MagicLinkFormValues) {
 }
 
 export async function sendMagicLinkLogin(data: MagicLinkFormValues) {
-  const res = await fetch("http://localhost:3000/emails/send-magic-link-login", {
+  const res = await fetchWithBaseUrl("/emails/send-magic-link-login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
 

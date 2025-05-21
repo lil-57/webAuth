@@ -71,34 +71,41 @@ export class AuthService {
 
     const passwordValid = await argon2.verify(user.password, dto.password)
     if (!passwordValid) {
-      user.failedAttempts += 1
+      user.failedAttempts += 1;
 
-      // Blocage après 5, 10, 15 tentatives...
-      if (user.failedAttempts % 5 === 0) {
-        const blockCount = Math.floor(user.failedAttempts / 5)
-        const blockMinutes = 5 * blockCount
-        const lockTime = new Date()
-        lockTime.setMinutes(lockTime.getMinutes() + blockMinutes)
-        user.lockUntil = lockTime
-        await this.em.persistAndFlush(user)
+      const blockThreshold = 5;
+
+      // Blocage automatique
+      if (user.failedAttempts % blockThreshold === 0) {
+        const blockCount = Math.floor(user.failedAttempts / blockThreshold);
+        const blockMinutes = 5 * blockCount;
+        const lockTime = new Date();
+        lockTime.setMinutes(lockTime.getMinutes() + blockMinutes);
+        user.lockUntil = lockTime;
+
+        await this.em.persistAndFlush(user);
 
         throw new UnauthorizedException(
           `Compte bloqué pour ${blockMinutes} minute(s) suite à plusieurs tentatives échouées.`,
-        )
+        );
       }
 
-      await this.em.persistAndFlush(user)
+      await this.em.persistAndFlush(user);
 
-      if (user.failedAttempts === 3) {
-        throw new UnauthorizedException("Mot de passe incorrect. 2 essais restants avant blocage du compte.")
+      // Calcul des tentatives restantes avant le prochain blocage
+      const attemptsSinceLastBlock = user.failedAttempts % blockThreshold;
+
+      if (attemptsSinceLastBlock === 3) {
+        throw new UnauthorizedException("Mot de passe incorrect. 2 essais restants avant blocage du compte.");
       }
 
-      if (user.failedAttempts === 4) {
-        throw new UnauthorizedException("Mot de passe incorrect. 1 essai restant avant blocage du compte.")
+      if (attemptsSinceLastBlock === 4) {
+        throw new UnauthorizedException("Mot de passe incorrect. 1 essai restant avant blocage du compte.");
       }
 
-      throw new UnauthorizedException(ErrorMessages.auth.invalidCredentials)
+      throw new UnauthorizedException(ErrorMessages.auth.invalidCredentials);
     }
+
 
     // réinitialise le compteur de tentatives après une connexion réussie
     user.failedAttempts = 0
@@ -107,7 +114,6 @@ export class AuthService {
 
     return this.getTokensForUser(user)
   }
-
 
 
   async logout(userId: string): Promise<{ message: string }> {
@@ -156,7 +162,7 @@ export class AuthService {
     }
   }
 
-  
+
   async generateMagicLinkToken(email: string): Promise<string> {
 
     const token = randomUUID()
@@ -195,10 +201,10 @@ export class AuthService {
       throw new UnauthorizedException("Utilisateur introuvable")
     }
 
-      if (user.lockUntil && user.lockUntil > new Date()) {
-    const remainingTime = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000)
-    throw new UnauthorizedException(`Compte bloqué. Veuillez réessayer dans ${remainingTime} minute(s).`)
-  }
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      const remainingTime = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000)
+      throw new UnauthorizedException(`Compte bloqué. Veuillez réessayer dans ${remainingTime} minute(s).`)
+    }
 
     return this.getTokensForUser(user)
   }

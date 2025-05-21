@@ -14,11 +14,6 @@ export class MailService {
   <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif; color: #111827;">
     <div style="max-width: 480px; margin: auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
       
-      <!-- Logo -->
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="https://...com/...png" alt="Logo de l'application" style="height: 40px;" />
-      </div>
-
       <!-- Title -->
       <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1f2937;">
         Finalisez votre inscription
@@ -68,11 +63,6 @@ export class MailService {
       html: `
   <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif; color: #111827;">
     <div style="max-width: 480px; margin: auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-      
-      <!-- Logo -->
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="https://...com/..." alt="Logo de l'application" style="height: 40px;" />
-      </div>
 
       <!-- Title -->
       <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1f2937;">
@@ -123,11 +113,6 @@ export class MailService {
       html: `
   <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif; color: #111827;">
     <div style="max-width: 480px; margin: auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-      
-      <!-- Logo -->
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="https://.../...png" alt="Logo de l'application" style="height: 40px;" />
-      </div>
 
       <!-- Title -->
       <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1f2937;">
@@ -178,11 +163,6 @@ export class MailService {
       html: `
   <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif; color: #111827;">
     <div style="max-width: 480px; margin: auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-      
-      <!-- Logo -->
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="https://.../...png" alt="Logo de l'application" style="height: 40px;" />
-      </div>
 
       <!-- Title -->
       <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1f2937;">
@@ -233,11 +213,6 @@ export class MailService {
       html: `
 <div style="background-color: #f3f4f6; padding: 40px 0; font-family: Arial, sans-serif; color: #111827;">
   <div style="max-width: 480px; margin: auto; background: white; padding: 32px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    
-    <!-- Logo -->
-    <div style="text-align: center; margin-bottom: 24px;">
-      <img src="https://.../...png" alt="Logo de l'application" style="height: 40px;" />
-    </div>
 
     <!-- Title -->
     <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1f2937;">

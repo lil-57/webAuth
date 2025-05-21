@@ -9,6 +9,7 @@ import ProfileForm from "./ProfileForm"
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 export default function ProfilePage() {
   const { refreshUser, user } = useAuth()
@@ -18,8 +19,8 @@ export default function ProfilePage() {
   const [resetLinkSent, setResetLinkSent] = useState(false)
   const [createLinkSent, setCreateLinkSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
- 
+  const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+
   const hasMagicLinkOnly = user ? !user.hasPassword : false
 
   useEffect(() => {
@@ -37,9 +38,8 @@ export default function ProfilePage() {
 
     try {
       setIsLoading(true)
-      const res = await fetch("http://localhost:3000/emails/send-reinitialisation-password-link", {
+      const res = await fetchWithBaseUrl("/emails/send-reinitialisation-password-link", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: user.email }),
       })
 
@@ -59,9 +59,8 @@ export default function ProfilePage() {
 
     try {
       setIsLoading(true)
-      const res = await fetch("http://localhost:3000/emails/send-create-password-link", {
+      const res = await fetchWithBaseUrl("/emails/send-create-password-link", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: user.email }),
       })
 
@@ -182,7 +181,7 @@ export default function ProfilePage() {
                   </p>
                 ) : (
 
-                  
+
                   <Button onClick={handleResetPassword} disabled={isLoading} className="w-full sm:w-auto">
                     {isLoading ? "Envoi en cours..." : "Recevoir un lien de réinitialisation"}
                   </Button>

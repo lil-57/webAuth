@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
-import { api } from "@/utils/api"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 export default function MagicRedirectPage() {
   const [searchParams] = useSearchParams()
@@ -19,12 +19,21 @@ export default function MagicRedirectPage() {
 
     const handleMagicLogin = async () => {
       try {
-        // Appel à l'API pour valider et consommer le token
-        await api.post("/auth/magic-login", { token })
+        await fetchWithBaseUrl("/auth/magic-login", {
+          method: "POST",
+          body: JSON.stringify({ token }),
+        })
 
-        const res = await api.get("/users/me")
-        setUser(res.data)
+
+        const res = await fetchWithBaseUrl("/users/me")
+        if (!res.ok) {
+          throw new Error("Erreur lors de la récupération de l'utilisateur")
+        }
+        const data = await res.json()
+        setUser(data)
         setIsAuthenticated(true)
+
+        
 
         navigate("/")
       } catch (err) {

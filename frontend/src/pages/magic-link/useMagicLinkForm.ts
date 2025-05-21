@@ -6,6 +6,7 @@ import { emailRegex } from "@/utils/regexEmail"
 import { sendMagicLinkInscription, sendMagicLinkLogin } from "@/utils/sendMagicLink"
 import type { MagicLinkFormValues } from "./MagicLinkInterface"
 import Cookies from "js-cookie"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 export function useMagicLinkForm(context: "login" | "register") {
   const [magicLinkSent, setMagicLinkSent] = useState(false)
@@ -17,7 +18,7 @@ export function useMagicLinkForm(context: "login" | "register") {
   const [accountLocked, setAccountLocked] = useState(false)
   const [lockTimeRemaining, setLockTimeRemaining] = useState(0)
 
-  const [ captchaResetKey, setCaptchaResetKey ] = useState(0)
+  const [captchaResetKey, setCaptchaResetKey] = useState(0)
 
   const { values, handleChange, handleSubmit, isSubmitting } = useForm<MagicLinkFormValues>({
     initialValues: { email: "" },
@@ -79,22 +80,39 @@ export function useMagicLinkForm(context: "login" | "register") {
 
   // Lecture des cookies si la page est rechargée
   useEffect(() => {
-    const blockedEmail = Cookies.get("blockedEmail")
-    const blockedUntil = Cookies.get("blockedUntil")
-
-    if (
-      blockedEmail &&
-      blockedUntil &&
-      blockedEmail === values.email &&
-      Date.now() < Number(blockedUntil)
-    ) {
-      const remaining = Math.floor((Number(blockedUntil) - Date.now()) / 1000)
-      setAccountLocked(true)
-      setError("Compte temporairement bloqué")
-      startLockTimer(remaining)
+    if (!values.email) {
+      setAccountLocked(false);
+      setError(null);
+      return;
     }
-  }, [values.email])
 
+    const blockedEmail = Cookies.get("blockedEmail");
+    const blockedUntil = Cookies.get("blockedUntil");
+    const now = Date.now();
+
+    //Si l'email est bloqué ET le blocage est encore actif
+    if (blockedEmail === values.email && blockedUntil && now < Number(blockedUntil)) {
+      const remaining = Math.floor((Number(blockedUntil) - now) / 1000);
+      setAccountLocked(true);
+      setError("Compte temporairement bloqué");
+      startLockTimer(remaining);
+    }
+    //Si email différent mais cookies encore valides, on NE les supprime PAS
+    else if (values.email !== blockedEmail) {
+      // juste masquer l’état visuellement sans supprimer les cookies
+      setAccountLocked(false);
+      setError(null);
+    }
+    //Si le blocage est expiré, on nettoie
+    else if (blockedUntil && now >= Number(blockedUntil)) {
+      setAccountLocked(false);
+      setError(null);
+      Cookies.remove("blockedEmail");
+      Cookies.remove("blockedUntil");
+    }
+  }, [values.email]);
+
+  
   // debounce email
   useEffect(() => {
     setShowEmailError(false)
@@ -108,7 +126,7 @@ export function useMagicLinkForm(context: "login" | "register") {
       setShowEmailError(true)
       if (emailRegex.test(values.email)) {
         try {
-          const res = await fetch(`http://localhost:3000/users/check-email?email=${encodeURIComponent(values.email)}`)
+          const res = await fetchWithBaseUrl(`/users/check-email?email=${encodeURIComponent(values.email)}`)//encodeURIComponent pour éviter les caractères spéciaux dans l'url
           if (res.ok) {
             const { exists } = await res.json()
             setEmailExists(exists)
@@ -140,36 +158,36 @@ export function useMagicLinkForm(context: "login" | "register") {
   }
 
   const submitMagicLink = async (captchaToken: string) => {
-  try {
-    if (context === "register") {
-      await sendMagicLinkInscription(values)
-    } else {
-      await sendMagicLinkLogin(values)
-    }
-    setMagicLinkSent(true)
-  } catch (err: any) {
-    const errorMessage = err.response?.data?.message || "Erreur d'envoi du lien"
-    setError(errorMessage)
+    try {
+      if (context === "register") {
+        await sendMagicLinkInscription(values)
+      } else {
+        await sendMagicLinkLogin(values)
+      }
+      setMagicLinkSent(true)
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Erreur d'envoi du lien"
+      setError(errorMessage)
 
-    // Réinitialiser le captcha (même logique que login)
-    setCaptchaResetKey(prev => prev + 1)
+      // Réinitialiser le captcha (même logique que login)
+      setCaptchaResetKey(prev => prev + 1)
 
-    if (errorMessage.includes("Compte bloqué")) {
-      setAccountLocked(true)
+      if (errorMessage.includes("Compte bloqué")) {
+        setAccountLocked(true)
 
-      const minutesMatch = errorMessage.match(/(\d+) minute/)
-      if (minutesMatch) {
-        const minutes = parseInt(minutesMatch[1])
-        const until = Date.now() + minutes * 60 * 1000
+        const minutesMatch = errorMessage.match(/(\d+) minute/)
+        if (minutesMatch) {
+          const minutes = parseInt(minutesMatch[1])
+          const until = Date.now() + minutes * 60 * 1000
 
-        Cookies.set("blockedEmail", values.email, { expires: 1 })
-        Cookies.set("blockedUntil", until.toString(), { expires: 1 })
+          Cookies.set("blockedEmail", values.email, { expires: 1 })
+          Cookies.set("blockedUntil", until.toString(), { expires: 1 })
 
-        startLockTimer(minutes * 60)
+          startLockTimer(minutes * 60)
+        }
       }
     }
   }
-}
 
 
   return {

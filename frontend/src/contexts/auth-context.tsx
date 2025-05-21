@@ -1,49 +1,14 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 
-interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  createdAt: string
-  password?: string | null
-  hasPassword: boolean
-}
-
-interface RegisterData {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-}
-
-interface UpdateProfileData {
-  firstName?: string
-  lastName?: string
-  email?: string
-}
-
-interface AuthContextType {
-  user: User | null
-  isLoading: boolean
-  isAuthenticated: boolean
-  login: (email: string, password: string, captchaToken: string) => Promise<void>
-  register: (userData: RegisterData, captchaToken: string) => Promise<void>
-  logout: () => Promise<void>
-  updateProfile: (data: UpdateProfileData, captchaToken: string) => Promise<void>
-  changePassword: (oldPassword: string, newPassword: string) => Promise<void>
-
-  setUser: (user: User | null) => void
-  setIsAuthenticated: (auth: boolean) => void
-  refreshUser: () => Promise<User | null>
-}
-
-interface AuthProviderProps {
-  children: ReactNode
-}
+import { User } from "@/types/user"
+import { AuthContextType } from "@/types/authContext"
+import { RegisterData } from "@/types/register"
+import { UpdateProfileData } from "@/types/updateProfile"
+import { AuthProviderProps } from "@/types/authProvider"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -56,8 +21,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch("http://localhost:3000/users/me", {
-          credentials: "include",
+        const response = await fetchWithBaseUrl("/users/me", {
         })
 
         if (!response.ok) {
@@ -81,21 +45,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string, captchaToken: string) => {
     try {
-      const loginResponse = await fetch("http://localhost:3000/auth/login", {
+      const loginResponse = await fetchWithBaseUrl("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ email, password, captchaToken }),
       })
 
       if (!loginResponse.ok) {
-        const errorData = await loginResponse.json()
-        throw new Error(errorData.message || "Erreur de connexion")
+        throw loginResponse;
       }
 
-      const userResponse = await fetch("http://localhost:3000/users/me", {
-        credentials: "include",
-      })
+
+      const userResponse = await fetchWithBaseUrl("/users/me")
 
       if (!userResponse.ok) {
         throw new Error("Impossible de récupérer les informations utilisateur")
@@ -122,10 +82,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (userData: RegisterData, captchaToken: string) => {
     try {
-      const registerResponse = await fetch("http://localhost:3000/auth/register", {
+      const registerResponse = await fetchWithBaseUrl("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ ...userData, captchaToken }),
       })
 
@@ -134,9 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error(errorData.message || "Erreur d'inscription")
       }
 
-      const userResponse = await fetch("http://localhost:3000/users/me", {
-        credentials: "include",
-      })
+      const userResponse = await fetchWithBaseUrl("/users/me")
 
       if (!userResponse.ok) {
         throw new Error("Impossible de récupérer les informations utilisateur")
@@ -163,11 +119,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:3000/auth/logout", {
+      await fetchWithBaseUrl("/auth/logout", {
         method: "POST",
-        credentials: "include",
       })
-
       setUser(null)
       setIsAuthenticated(false)
 
@@ -187,10 +141,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const updateProfile = async (data: UpdateProfileData, captchaToken: string) => {
     try {
-      const response = await fetch("http://localhost:3000/users/me", {
+      const response = await fetchWithBaseUrl("/users/me", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ ...data, captchaToken }),
       })
 
@@ -221,10 +173,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const changePassword = async (oldPassword: string, newPassword: string) => {
     try {
-      const response = await fetch("http://localhost:3000/users/me/password", {
+      const response = await fetchWithBaseUrl("/users/me/password", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ oldPassword, newPassword }),
       })
 
@@ -250,9 +200,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshUser = async (): Promise<User | null> => {
     try {
-      const response = await fetch("http://localhost:3000/users/me", {
-        credentials: "include",
-      })
+      const response = await fetchWithBaseUrl("/users/me")
 
       if (!response.ok) {
         throw new Error("Impossible de récupérer les informations utilisateur")

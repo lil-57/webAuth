@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
+import { fetchWithBaseUrl } from "@/utils/fetchWithBaseUrl"
 
 export default function MagicRedirectPage() {
   const navigate = useNavigate()
@@ -21,10 +22,8 @@ export default function MagicRedirectPage() {
       }
 
       try {
-        const res = await fetch("http://localhost:3000/auth/magic-login", {
+        const res = await fetchWithBaseUrl("/auth/magic-login", {
           method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token }),
         })
 
@@ -39,12 +38,8 @@ export default function MagicRedirectPage() {
           return navigate("/error-link?type=invalid")
         }
 
-        const meRes = await fetch("http://localhost:3000/users/me", {
-          credentials: "include",
-        })
-
+        const meRes = await fetchWithBaseUrl("/users/me")
         if (!meRes.ok) throw new Error("Échec récupération utilisateur")
-
         const user = await meRes.json()
         setUser(user)
         setIsAuthenticated(true)

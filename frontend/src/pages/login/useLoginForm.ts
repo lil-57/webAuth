@@ -9,6 +9,8 @@ import Cookies from "js-cookie"
 import type { LoginFormValues } from "./LoginInterface"
 import { useCaptcha } from "@/hooks/useCaptcha"
 
+
+
 let currentCaptchaToken: string | null = null
 
 export function useLoginForm() {
@@ -65,22 +67,40 @@ export function useLoginForm() {
     setLockTimer(timer)
   }
 
-  useEffect(() => {
-    const blockedEmail = Cookies.get("blockedEmail")
-    const blockedUntil = Cookies.get("blockedUntil")
 
-    if (
-      blockedEmail &&
-      blockedUntil &&
-      blockedEmail === values.email &&
-      Date.now() < Number(blockedUntil)
-    ) {
-      const remaining = Math.floor((Number(blockedUntil) - Date.now()) / 1000)
-      setAccountLocked(true)
-      setError("Compte temporairement bloqué")
-      startLockTimer(remaining)
-    }
-  }, [values.email])
+useEffect(() => {
+  if (!values.email) {
+    setAccountLocked(false);
+    setError(null);
+    return;
+  }
+
+  const blockedEmail = Cookies.get("blockedEmail");
+  const blockedUntil = Cookies.get("blockedUntil");
+  const now = Date.now();
+
+  // ⏳ Si l'email est bloqué ET le blocage est encore actif
+  if (blockedEmail === values.email && blockedUntil && now < Number(blockedUntil)) {
+    const remaining = Math.floor((Number(blockedUntil) - now) / 1000);
+    setAccountLocked(true);
+    setError("Compte temporairement bloqué");
+    startLockTimer(remaining);
+  }
+  // ✅ Si email différent mais cookies encore valides, on NE les supprime PAS
+  else if (values.email !== blockedEmail) {
+    // juste masquer l’état visuellement sans supprimer les cookies
+    setAccountLocked(false);
+    setError(null);
+  }
+  // 🧼 Si le blocage est expiré, on nettoie
+  else if (blockedUntil && now >= Number(blockedUntil)) {
+    setAccountLocked(false);
+    setError(null);
+    Cookies.remove("blockedEmail");
+    Cookies.remove("blockedUntil");
+  }
+}, [values.email]);
+
 
   useEffect(() => {
     return () => {
@@ -153,8 +173,17 @@ export function useLoginForm() {
       Cookies.remove("blockedUntil")
       navigate("/")
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Email ou mot de passe incorrect"
+      let errorMessage = "Email ou mot de passe incorrect"
+
+      if (error instanceof Response) {
+        const errorData = await error.json().catch(() => null)
+        if (errorData?.message) {
+          errorMessage = errorData.message
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+
       setError(errorMessage)
 
       // Réinitialiser le captcha
