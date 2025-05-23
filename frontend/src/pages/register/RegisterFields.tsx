@@ -36,7 +36,7 @@ export default function RegisterFields({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4">
+       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">Prénom</Label>
           <Input id="firstName" name="firstName" placeholder="Prénom" value={values.firstName} onChange={onChange} />
@@ -143,7 +143,8 @@ export default function RegisterFields({
         {values.password && (
           <div className="h-2 mt-2 bg-gray-200 rounded">
             <div
-              className={`h-2 rounded transition-all duration-300 ${strength <= 1
+               className={`h-2 rounded transition-all duration-300 ${
+                strength <= 1
                   ? "w-1/5 bg-red-500"
                   : strength === 2
                     ? "w-2/5 bg-orange-500"

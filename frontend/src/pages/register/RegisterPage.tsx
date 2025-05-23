@@ -12,10 +12,10 @@ export default function RegisterPage() {
   const { magicLinkSent } = useMagicLinkForm("register")
 
   return (
-    <div className="flex justify-center items-center py-8">
+    <div className="flex justify-center items-center py-8 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Inscription</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Inscription</CardTitle>
           <CardDescription>Créez un compte pour accéder à toutes les fonctionnalités</CardDescription>
         </CardHeader>
         <CardContent>

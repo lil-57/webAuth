@@ -63,7 +63,7 @@ export default function ErrorLinkPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh]">
+    <div className="flex justify-center items-center min-h-[80vh] px-4 py-6">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-2 text-destructive mb-2">
@@ -73,13 +73,13 @@ export default function ErrorLinkPage() {
           <CardDescription>{getErrorMessage()}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">{getContextMessage()}</p>
+          <p className="text-muted-foreground text-sm">{getContextMessage()}</p>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" asChild>
+        <CardFooter className="flex flex-col sm:flex-row justify-between gap-2">
+          <Button variant="outline" asChild className="w-full sm:w-auto">
             <Link to="/">Retour à l'accueil</Link>
           </Button>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to={getActionLink()}>{getActionText()}</Link>
           </Button>
         </CardFooter>

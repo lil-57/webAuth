@@ -11,18 +11,16 @@ import { CheckCircle } from "lucide-react"
 import { useState } from "react"
 
 
-
-
 export default function LoginPage() {
   const [searchParams] = useSearchParams()
   const emailChanged = searchParams.get("emailChanged") === "success"
   const [tab, setTab] = useState("password")
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh]">
+     <div className="flex justify-center items-center min-h-[80vh] px-4 py-8">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Connexion</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Connexion</CardTitle>
           <CardDescription>Accédez à votre espace personnel</CardDescription>
         </CardHeader>
 
@@ -30,9 +28,7 @@ export default function LoginPage() {
           {emailChanged && (
             <Alert className="mb-4 bg-green-50 border-green-200">
               <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-700">
-                Votre adresse email a bien été modifiée ✅
-              </AlertDescription>
+               <AlertDescription className="text-green-700">Votre adresse email a bien été modifiée ✅</AlertDescription>
             </Alert>
           )}
 
@@ -54,22 +50,16 @@ export default function LoginPage() {
           </Tabs>
         </CardContent>
 
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             Pas encore de compte ?{" "}
             <Link to="/register" className="text-primary hover:underline">
               Inscrivez-vous
             </Link>
           </p>
-        </CardFooter>
-        <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             Mot de passe oublié ?{" "}
-            <button
-              type="button"
-              onClick={() => setTab("magic-link")}
-              className="text-primary hover:underline ml-1"
-            >
+            <button type="button" onClick={() => setTab("magic-link")} className="text-primary hover:underline ml-1">
               Connectez-vous via Magic Link
             </button>
           </p>
