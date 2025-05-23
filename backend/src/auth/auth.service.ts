@@ -183,10 +183,10 @@ export class AuthService {
   private async getTokensForUser(user: User): Promise<{ access_token: string; refresh_token: string }> {
     const payload = { sub: user.id, email: user.email, role: user.role }
 
-    const access_token = await this.jwtService.signAsync(payload, { expiresIn: "15m" })
-    const refresh_token = await this.jwtService.signAsync(payload, { expiresIn: "7d" })
+    const access_token = await this.jwtService.signAsync(payload, { expiresIn: "15m" })//génère un token d'accès
+    const refresh_token = await this.jwtService.signAsync(payload, { expiresIn: "7d" })//génère un token de rafraichissement
 
-    user.refreshToken = await argon2.hash(refresh_token)
+    user.refreshToken = await argon2.hash(refresh_token)//hash le token de rafraichissement avant de l'enregistrer
 
     await this.em.persistAndFlush(user)//enregistre les tokens en base
 

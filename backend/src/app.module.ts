@@ -4,8 +4,17 @@ import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { AuthModule } from "./auth/auth.module"
 import mikroOrmConfig from "../mikro-orm.config"
 import { EmailModule } from "./emails/email.module"
+import { ConfigModule } from "@nestjs/config"
+
 @Module({
-  imports: [UserModule, AuthModule, EmailModule, MikroOrmModule.forRoot(mikroOrmConfig)],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    UserModule, 
+    AuthModule, 
+    EmailModule, 
+    MikroOrmModule.forRoot(mikroOrmConfig)],
   controllers: [],
   providers: [],
 })

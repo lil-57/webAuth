@@ -135,18 +135,27 @@ export function useRegisterForm() {
 
   // Debounce pour l'email avec vérification d'existence
   useEffect(() => {
+    //Réinitialiser l'état d'erreur de l'email
     setShowErrors((s) => ({ ...s, email: false }))
     setEmailExists(false)
     setIsEmailChecking(false)
+    
+    if (!values.email) return //si le champ est vide, on quitte la fonction
 
-    if (!values.email) return
+    setIsEmailChecking(true) //on indique que la vérification est en cours
 
-    setIsEmailChecking(true)
+    //lancement de la vérification après un délai
     const h = setTimeout(async () => {
-      setShowErrors((s) => ({ ...s, email: true }))
+
+      //si la saisie reprend avant la fin du délai, on relance ce bloc
+
+      setShowErrors((s) => ({ ...s, email: true })) //Affiche l'erreur 
+
+      //si l'email est valide, on lance la vérification côté serveur
       if (emailRegex.test(values.email)) {
         try {
-          const res = await fetchWithBaseUrl(`/users/check-email?email=${encodeURIComponent(values.email)}`)
+      
+          const res = await fetchWithBaseUrl(`/users/check-email?email=${encodeURIComponent(values.email)}`) //appel à l'API pour vérifier si l'email existe déjà
           if (res.ok) {
             const { exists } = await res.json()
             setEmailExists(exists)
@@ -154,18 +163,21 @@ export function useRegisterForm() {
         } catch (err) {
           console.error("Erreur de vérification email:", err)
         } finally {
-          setIsEmailChecking(false)
+          setIsEmailChecking(false)//fin de la vérification
         }
       } else {
+        //si l'email n'est pas valide, on ne lance pas de requête
         setIsEmailChecking(false)
       }
     }, 1000)
 
+    // Nettoyage de l'effet pour éviter les fuites de mémoire
     return () => {
       clearTimeout(h)
       setIsEmailChecking(false)
     }
   }, [values.email])
+
 
   // Debounce pour le mot de passe
   useEffect(() => {

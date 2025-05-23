@@ -29,6 +29,8 @@ import { MagicLinkToken } from "../emails/email.token.entity"
 import { CookieOptions } from "express"
 import { verifyCaptcha } from "../utils/verifyCaptcha"
 
+import { ConfigService } from "@nestjs/config"
+
 const COOKIE_OPTS: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
@@ -43,6 +45,7 @@ export class AuthController {
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
     private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) { }
 
   @Post("register")
@@ -117,12 +120,17 @@ export class AuthController {
 
   @Get("create-password-link")
   async createPasswordLink(@Query("token") token: string, @Res() res: Response) {
+
+    const frontendUrl = this.configService.get<string>("FRONTEND_URL");
+
     try {
       const magicToken = await this.em.findOne(MagicLinkToken, { token })
 
+      
+
       if (!magicToken || magicToken.expiresAt < new Date()) {
         if (magicToken) await this.em.removeAndFlush(magicToken)
-        return res.redirect("http://localhost:5173/error-link")
+        return res.redirect(`${frontendUrl}/error-link`)
       }
 
       const email = magicToken.email
@@ -139,21 +147,23 @@ export class AuthController {
         sameSite: "strict",
       })
 
-      return res.redirect("http://localhost:5173/password?mode=create")
+      return res.redirect(`${frontendUrl}/password?mode=create`)
     } catch (error) {
-      return res.redirect("http://localhost:5173/error-link")
+      return res.redirect(`${frontendUrl}/error-link`)
     }
   }
 
 
   @Get("reset-password-link")
   async resetPasswordLink(@Query('token') token: string, @Res() res: Response) {
+
+    const frontendUrl = this.configService.get<string>("FRONTEND_URL");
     try {
       const magicToken = await this.em.findOne(MagicLinkToken, { token })
 
       if (!magicToken || magicToken.expiresAt < new Date()) {
         if (magicToken) await this.em.removeAndFlush(magicToken)
-        return res.redirect("http://localhost:5173/error-link")
+        return res.redirect(`${frontendUrl}/error-link`)
       }
 
       const email = magicToken.email
@@ -170,9 +180,9 @@ export class AuthController {
         sameSite: "strict",
       })
 
-      return res.redirect("http://localhost:5173/password?mode=reset")
+      return res.redirect(`${frontendUrl}/password?mode=reset`)
     } catch (error) {
-      return res.redirect("http://localhost:5173/error-link")
+      return res.redirect(`${frontendUrl}/error-link`)
     }
   }
 
@@ -218,12 +228,15 @@ export class AuthController {
 
   @Get("magic-auth-link")
   async magicAuthLink(@Query('token') token: string, @Res() res: Response) {
+
+    const frontendUrl = this.configService.get<string>("FRONTEND_URL");
+
     try {
       const magicToken = await this.em.findOne(MagicLinkToken, { token })
 
       if (!magicToken || magicToken.expiresAt < new Date()) {
         if (magicToken) await this.em.removeAndFlush(magicToken)
-        return res.redirect("http://localhost:5173/error-link")
+        return res.redirect(`${frontendUrl}/error-link`)
       }
 
       const email = magicToken.email
@@ -243,9 +256,9 @@ export class AuthController {
       res.cookie("access_token", access_token, { ...COOKIE_OPTS, maxAge: 15 * 60 * 1000 })
       res.cookie("refresh_token", refresh_token, { ...COOKIE_OPTS, maxAge: 7 * 24 * 3600 * 1000 })
 
-      return res.redirect("http://localhost:5173/")
+      return res.redirect(`${frontendUrl}/`)
     } catch (error) {
-      return res.redirect("http://localhost:5173/error-link")
+      return res.redirect(`${frontendUrl}/error-link`)
     }
   }
 
@@ -266,12 +279,13 @@ export class AuthController {
     @Query('oldEmail') oldEmail: string,
     @Res() res: Response
   ) {
+    const frontendUrl = this.configService.get<string>("FRONTEND_URL");
     try {
       const magicToken = await this.em.findOne(MagicLinkToken, { token })
 
       if (!magicToken || magicToken.expiresAt < new Date()) {
         if (magicToken) await this.em.removeAndFlush(magicToken)
-        return res.redirect("http://localhost:5173/error-link")
+        return res.redirect(`${frontendUrl}/error-link`)
       }
 
       const email = magicToken.email
@@ -279,7 +293,7 @@ export class AuthController {
       const user = await this.userRepository.findOne({ email: oldEmail })
 
       if (!user) {
-        return res.redirect("http://localhost:5173/error-link")
+        return res.redirect(`${frontendUrl}/error-link`)
       }
 
       user.email = email
@@ -289,9 +303,9 @@ export class AuthController {
       res.clearCookie("access_token")
       res.clearCookie("refresh_token")
 
-      return res.redirect("http://localhost:5173/login?emailChanged=success")
+      return res.redirect(`${frontendUrl}/login?emailChanged=success`)
     } catch {
-      return res.redirect("http://localhost:5173/error-link")
+      return res.redirect(`${frontendUrl}/error-link`)
     }
   }
 }

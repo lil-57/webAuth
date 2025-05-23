@@ -3,14 +3,18 @@ import { AppModule } from "./app.module"
 import { ValidationPipe } from "@nestjs/common"
 import * as cookieParser from "cookie-parser"
 import { AuthService } from "./auth/auth.service"
+import { ConfigService } from "@nestjs/config"
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const reflector = app.get(Reflector)
   const authService = app.get(AuthService)
+  const configService = app.get(ConfigService)
+
+  const frontendUrl = configService.get<string>("FRONTEND_URL")
 
   app.enableCors({
-    origin: "http://localhost:5173",
+    origin: frontendUrl,
     credentials: true,
   })
 
