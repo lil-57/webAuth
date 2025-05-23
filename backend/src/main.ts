@@ -4,6 +4,9 @@ import { ValidationPipe } from "@nestjs/common"
 import * as cookieParser from "cookie-parser"
 import { AuthService } from "./auth/auth.service"
 import { ConfigService } from "@nestjs/config"
+import * as dotenv from "dotenv"
+
+dotenv.config()
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

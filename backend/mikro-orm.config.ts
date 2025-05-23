@@ -6,14 +6,22 @@ dotenv.config()
 
 const config: Options<PostgreSqlDriver> = {
   driver: PostgreSqlDriver,
+
+  ...(process.env.DATABASE_URL
+    ? {
+      clientUrl: process.env.DATABASE_URL,
+    }
+    : {
+  
   host: process.env.DB_HOST,
   port: Number.parseInt(process.env.DB_PORT || "5433"),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   dbName: process.env.DB_NAME,
+    }),
   entities: ["dist/**/*.entity.js"],
   entitiesTs: ["src/**/*.entity.ts"],
   debug: true,
-}
 
+}
 export default config
