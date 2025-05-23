@@ -34,7 +34,8 @@ import { ConfigService } from "@nestjs/config"
 const COOKIE_OPTS: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+
 }
 
 @Controller("auth")
@@ -136,15 +137,14 @@ export class AuthController {
       const email = magicToken.email
 
       res.cookie("email_for_password", email, {
-        httpOnly: true,
+        ...COOKIE_OPTS,
         maxAge: 15 * 60 * 1000,
-        sameSite: "strict",
+ 
       })
 
       res.cookie("token_for_password", token, {
-        httpOnly: true,
+        ...COOKIE_OPTS,
         maxAge: 15 * 60 * 1000,
-        sameSite: "strict",
       })
 
       return res.redirect(`${frontendUrl}/password?mode=create`)
@@ -169,15 +169,15 @@ export class AuthController {
       const email = magicToken.email
 
       res.cookie("email_for_password", email, {
-        httpOnly: true,
+        ...COOKIE_OPTS,
         maxAge: 15 * 60 * 1000,
-        sameSite: "strict",
+  
       })
 
       res.cookie("token_for_password", token, {
-        httpOnly: true,
+        ...COOKIE_OPTS,
         maxAge: 15 * 60 * 1000,
-        sameSite: "strict",
+        
       })
 
       return res.redirect(`${frontendUrl}/password?mode=reset`)
