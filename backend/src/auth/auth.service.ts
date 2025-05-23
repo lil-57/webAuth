@@ -21,6 +21,7 @@ import { addMinutes } from "date-fns"
 import { MagicLinkToken } from "../emails/email.token.entity"
 import { MailService } from "../emails/email.service"
 
+ 
 
 @Injectable()
 export class AuthService {
@@ -256,4 +257,6 @@ export class AuthService {
       console.error("Erreur lors du nettoyage des tokens expirés:", error)
     }
   }
+
+ 
 }
