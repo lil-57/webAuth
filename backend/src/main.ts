@@ -14,12 +14,20 @@ async function bootstrap() {
   const authService = app.get(AuthService)
   const configService = app.get(ConfigService)
 
-  const frontendUrl = configService.get<string>("FRONTEND_URL")
+  const allowedOrigin = configService.get<string>("FRONTEND_URL");
 
-  app.enableCors({
-    origin: frontendUrl,
-    credentials: true,
-  })
+app.enableCors({
+  origin: (origin, callback) => {
+    if (!origin || origin === allowedOrigin) {
+      callback(null, true);
+    } else {
+      console.error(`CORS bloqué pour : ${origin}`);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  credentials: true,
+});
+
 
   app.useGlobalPipes(
     new ValidationPipe({
