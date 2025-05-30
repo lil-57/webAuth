@@ -35,8 +35,16 @@ const COOKIE_OPTS: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-
 }
+
+
+const CLEAR_COOKIE_OPTS: CookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
+}
+
 
 @Controller("auth")
 export class AuthController {
@@ -93,8 +101,9 @@ export class AuthController {
 
     await this.authService.logout(req.user.id)
 
-    res.clearCookie("access_token")
-    res.clearCookie("refresh_token")
+    res.clearCookie("access_token", CLEAR_COOKIE_OPTS)
+res.clearCookie("refresh_token", CLEAR_COOKIE_OPTS)
+
     res.clearCookie("email_for_password")
     res.clearCookie("token_for_password")
 
