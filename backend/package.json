@@ -23,7 +23,7 @@
     "migration:generate": "mikro-orm migration:generate",
     "email": "email dev",
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
-    "start:prod": "cross-env NODE_ENV=production nest start"
+    "start:prod": "cross-env NODE_ENV=production pnpm run migration:up && nest start"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.4.14",
